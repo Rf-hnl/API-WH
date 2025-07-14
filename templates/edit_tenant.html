@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Tenant{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Edit Tenant</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Tenant Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ tenant.name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="twilio_whatsapp_number" class="form-label">Twilio WhatsApp Number</label>
+            <input type="text" class="form-control" id="twilio_whatsapp_number" name="twilio_whatsapp_number" value="{{ tenant.twilio_whatsapp_number }}" required>
+            <div class="form-text">e.g., +12345678900 (include country code)</div>
+        </div>
+        <div class="mb-3">
+            <label for="api_key" class="form-label">API Key</label>
+            <input type="text" class="form-control" id="api_key" name="api_key" value="{{ tenant.api_key }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Tenant</button>
+        <a href="{{ url_for('tenants') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

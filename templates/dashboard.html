@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Bot WhatsApp Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Inquilinos</h5>
+                        <h2 class="mb-0">{{ stats.total_tenants }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Conversaciones Activas</h5>
+                        <h2 class="mb-0">{{ stats.active_conversations }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-comments fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Mensajes Hoy</h5>
+                        <h2 class="mb-0">{{ stats.messages_today }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-envelope fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Total Mensajes</h5>
+                        <h2 class="mb-0">{{ stats.total_messages }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock"></i> Conversaciones Recientes
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_conversations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Inquilino</th>
+                                    <th>Usuario WhatsApp</th>
+                                    <th>Último Mensaje</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for conv in recent_conversations %}
+                                <tr>
+                                    <td>{{ conv.tenant.name }}</td>
+                                    <td>{{ conv.whatsapp_user_id }}</td>
+                                    <td>{{ conv.last_message_body[:50] + '...' if conv.last_message_body and conv.last_message_body|length > 50 else conv.last_message_body or 'Sin mensajes' }}</td>
+                                    <td>{{ conv.last_message_at.strftime('%d/%m/%Y %H:%M') if conv.last_message_at else 'N/A' }}</td>
+                                    <td>
+                                        <a href="{{ url_for('conversation_detail', conversation_id=conv.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Ver
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay conversaciones recientes.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog"></i> Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('send_message') }}" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                    </a>
+                    <a href="{{ url_for('create_tenant') }}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Crear Inquilino
+                    </a>
+                    <a href="{{ url_for('conversations') }}" class="btn btn-info">
+                        <i class="fas fa-comments"></i> Ver Conversaciones
+                    </a>
+                    <button class="btn btn-secondary" onclick="refreshStats()">
+                        <i class="fas fa-sync"></i> Actualizar Estadísticas
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> Estado del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="text-success mb-2">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
+                            <small>API Activa</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <div class="text-success mb-2">
+                                <i class="fas fa-database fa-2x"></i>
+                            </div>
+                            <small>Base de Datos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function refreshStats() {
+    location.reload();
+}
+</script>
+{% endblock %}

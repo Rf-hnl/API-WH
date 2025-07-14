@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Conversaciones - Bot WhatsApp Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-comments"></i> Conversaciones
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control" id="searchInput" placeholder="Buscar por usuario o inquilino...">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <select class="form-select" id="tenantFilter">
+            <option value="">Todos los inquilinos</option>
+            {% for tenant in tenants %}
+            <option value="{{ tenant.id }}">{{ tenant.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-list"></i> Lista de Conversaciones
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if conversations %}
+            <div class="table-responsive">
+                <table class="table table-hover" id="conversationsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Inquilino</th>
+                            <th>Usuario WhatsApp</th>
+                            <th>Último Mensaje</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for conv in conversations %}
+                        <tr data-tenant-id="{{ conv.tenant.id }}">
+                            <td>{{ conv.id[:8] }}...</td>
+                            <td>{{ conv.tenant.name }}</td>
+                            <td>{{ conv.whatsapp_user_id }}</td>
+                            <td>
+                                {% if conv.last_message_body %}
+                                    {{ conv.last_message_body[:50] + '...' if conv.last_message_body|length > 50 else conv.last_message_body }}
+                                {% else %}
+                                    <span class="text-muted">Sin mensajes</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ conv.last_message_at.strftime('%d/%m/%Y %H:%M') if conv.last_message_at else 'N/A' }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if conv.status == 'open' else 'secondary' }}">
+                                    {{ conv.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('conversation_detail', conversation_id=conv.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-success" 
+                                            onclick="quickReply('{{ conv.id }}')">
+                                        <i class="fas fa-reply"></i> Responder
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No hay conversaciones disponibles</h5>
+                <p class="text-muted">Las conversaciones aparecerán aquí cuando los usuarios envíen mensajes.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal para respuesta rápida -->
+<div class="modal fade" id="quickReplyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Respuesta Rápida</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickReplyForm">
+                    <input type="hidden" id="conversationId" name="conversation_id">
+                    <div class="mb-3">
+                        <label for="quickMessage" class="form-label">Mensaje</label>
+                        <textarea class="form-control" id="quickMessage" name="message" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mediaUrl" class="form-label">URL de Imagen/Video (opcional)</label>
+                        <input type="url" class="form-control" id="mediaUrl" name="media_url" placeholder="https://...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="sendQuickReply()">
+                    <i class="fas fa-paper-plane"></i> Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Filtro de búsqueda
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#conversationsTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Filtro por inquilino
+document.getElementById('tenantFilter').addEventListener('change', function() {
+    const tenantId = this.value;
+    const rows = document.querySelectorAll('#conversationsTable tbody tr');
+    
+    rows.forEach(row => {
+        const rowTenantId = row.getAttribute('data-tenant-id');
+        row.style.display = (!tenantId || rowTenantId === tenantId) ? '' : 'none';
+    });
+});
+
+// Respuesta rápida
+function quickReply(conversationId) {
+    document.getElementById('conversationId').value = conversationId;
+    document.getElementById('quickMessage').value = '';
+    document.getElementById('mediaUrl').value = '';
+    new bootstrap.Modal(document.getElementById('quickReplyModal')).show();
+}
+
+async function sendQuickReply() {
+    const form = document.getElementById('quickReplyForm');
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('/web/send-quick-reply', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('quickReplyModal'));
+            modal.hide();
+            
+            // Mostrar mensaje de éxito
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                Mensaje enviado exitosamente
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+            
+            // Refrescar la página después de 2 segundos
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            throw new Error('Error al enviar mensaje');
+        }
+    } catch (error) {
+        alert('Error al enviar mensaje: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

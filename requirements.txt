@@ -1,0 +1,12 @@
+# Dev environment
+pip
+autopep8
+python-dotenv
+SQLAlchemy
+Flask-SQLAlchemy
+# App
+flask
+requests
+twilio
+psycopg2-binary
+prisma

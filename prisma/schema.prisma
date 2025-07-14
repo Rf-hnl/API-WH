@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-py"
+  output   = "./../models_prisma.py" // Output to models_prisma.py in the parent directory
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id               String    @id @default(cuid())
+  name             String    @unique
+  twilioAccountSid String
+  twilioAuthToken  String
+  whatsappMessages WhatsappMessage[]
+}
+
+model WhatsappMessage {
+  id               String    @id @default(cuid())
+  tenantId         String
+  tenant           Tenant?   @relation(fields: [tenantId], references: [id])
+  messageSid       String?   @unique // Twilio Message SID
+  fromNumber       String
+  toNumber         String
+  contentSid       String
+  contentVariables String?   @default("{}") @db.Text // JSON string for content variables
+  status           String    // e.g., "sent", "failed", "delivered", "read"
+  errorMessage     String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([tenantId])
+}

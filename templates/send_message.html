@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Mensaje de WhatsApp</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input[type="text"],
+        input[type="password"],
+        input[type="tel"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .help-text { font-size: 0.9em; color: #777; margin-top: 5px; }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover { background-color: #0056b3; }
+        .notification {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+        .notification.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .notification.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enviar Mensaje de WhatsApp</h1>
+        <form id="whatsappForm">
+            <div class="form-group">
+                <label for="twilio_number">Twilio WhatsApp Number</label>
+                <input type="tel" id="twilio_number" name="twilio_number" placeholder="whatsapp:+14155238886" required>
+                <div class="help-text">El número de WhatsApp de Twilio (ej. whatsapp:+14155238886).</div>
+            </div>
+            <div class="form-group">
+                <label for="content_sid">Content SID (Plantilla de WhatsApp)</label>
+                <input type="text" id="content_sid" name="content_sid" required>
+                <div class="help-text">El Content SID de tu plantilla de WhatsApp aprobada.</div>
+            </div>
+            <div class="form-group">
+                <label for="content_variables">Content Variables (JSON)</label>
+                <input type="text" id="content_variables" name="content_variables" placeholder='{"1":"12/1","2":"3pm"}'>
+                <div class="help-text">Variables para la plantilla en formato JSON (ej. {"1":"valor1","2":"valor2"}).</div>
+            </div>
+            <div class="form-group">
+                <label for="to_number">To (Número de Destino)</label>
+                <input type="tel" id="to_number" name="to_number" placeholder="whatsapp:+50763116918" required>
+                <div class="help-text">El número de WhatsApp del destinatario (ej. whatsapp:+50763116918).</div>
+            </div>
+            <button type="submit">Enviar Mensaje</button>
+            <div id="notification" class="notification"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('whatsappForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const notificationDiv = document.getElementById('notification');
+
+            // Clear previous notifications
+            notificationDiv.style.display = 'none';
+            notificationDiv.className = 'notification';
+            notificationDiv.textContent = '';
+
+            try {
+                const response = await fetch('/send_whatsapp', {
+                    method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Tenant-ID': 'tenant_ejemplo_123' // ¡Este ID debe venir de la autenticación real del usuario!
+                }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    notificationDiv.classList.add('success');
+                    notificationDiv.textContent = `Mensaje enviado con éxito. SID: ${result.message_sid}`;
+                } else {
+                    notificationDiv.classList.add('error');
+                    notificationDiv.textContent = `Error al enviar mensaje: ${result.error || 'Error desconocido'}`;
+                }
+            } catch (error) {
+                notificationDiv.classList.add('error');
+                notificationDiv.textContent = `Error de red o servidor: ${error.message}`;
+            } finally {
+                notificationDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
