@@ -94,25 +94,19 @@
             <div class="modal-body">
                 <form id="createTenantForm">
                     <div class="mb-3">
-                        <label for="tenantName" class="form-label">Nombre del Inquilino</label>
-                        <input type="text" class="form-control" id="tenantName" name="name" required>
-                        <div class="form-text">Nombre de la empresa o cliente</div>
+                        <label for="name" class="form-label">Nombre del Inquilino</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="form-text">Nombre identificativo para el inquilino</div>
                     </div>
                     <div class="mb-3">
-                        <label for="whatsappNumber" class="form-label">Número de WhatsApp</label>
-                        <input type="text" class="form-control" id="whatsappNumber" name="twilio_whatsapp_number" 
-                               placeholder="whatsapp:+573001234567" required>
-                        <div class="form-text">Número de WhatsApp asignado por Twilio</div>
+                        <label for="twilioAccountSid" class="form-label">Twilio Account SID</label>
+                        <input type="text" class="form-control" id="twilioAccountSid" name="twilio_account_sid" required>
+                        <div class="form-text">SID de la cuenta Twilio</div>
                     </div>
                     <div class="mb-3">
-                        <label for="apiKey" class="form-label">API Key</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="apiKey" name="api_key" required>
-                            <button type="button" class="btn btn-outline-secondary" onclick="generateApiKey()">
-                                <i class="fas fa-random"></i> Generar
-                            </button>
-                        </div>
-                        <div class="form-text">Clave única para acceso a la API</div>
+                        <label for="twilioAuthToken" class="form-label">Twilio Auth Token</label>
+                        <input type="password" class="form-control" id="twilioAuthToken" name="twilio_auth_token" required>
+                        <div class="form-text">Token de autenticación de Twilio</div>
                     </div>
                 </form>
             </div>
@@ -188,7 +182,7 @@ async function createTenant() {
     };
     
     try {
-        const response = await fetch('/api/tenants', {
+        const response = await fetch('/tenants', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

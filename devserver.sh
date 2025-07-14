@@ -71,6 +71,7 @@ log "Activating virtual environment and starting Flask application..."
 # The 'app.py' file contains the main Flask application with the web interface.
 # We need to ensure the FLASK_APP environment variable is set correctly.
 export FLASK_APP=app.py
+export PORT=5001 # Explicitly set the port to 5001
 python -u -m flask run -p ${PORT:-5000} --debug
 if [ $? -ne 0 ]; then
     log "Error: Flask application failed to start."

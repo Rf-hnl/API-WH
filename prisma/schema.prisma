@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-py"
-  output   = "./../models_prisma.py" // Output to models_prisma.py in the parent directory
+  output   = "./../models_prisma" // Output to models_prisma directory in the parent directory
 }
 
 datasource db {

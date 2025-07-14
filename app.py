@@ -5,30 +5,33 @@ from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
 import os
 import json
-from prisma import Prisma
 from datetime import datetime
-from prisma.models import Tenant
+from models_prisma.client import Prisma
+from models_prisma.models import Tenant
+
 import functools
-import atexit # Para desconectar Prisma al cerrar la app
+import asyncio # Importar asyncio para manejar operaciones asíncronas
 
 app = Flask(__name__)
-prisma = Prisma()
 
-# Conectar Prisma al inicio de la aplicación
-# Esto es para que la conexión esté disponible globalmente
-# y no se abra/cierre en cada petición.
-# Para entornos de desarrollo, puedes conectar aquí.
-# Para entornos de producción con Gunicorn/uWSGI, la conexión
-# se gestionaría por worker.
-try:
-    prisma.connect()
-except Exception as e:
-    print(f"Error al conectar Prisma al inicio: {e}")
-    # Dependiendo del caso, podrías querer salir o reintentar
-    # sys.exit(1)
+@app.before_request
+async def before_request():
+    g.prisma = Prisma()
+    await g.prisma.connect()
 
-# Desconectar Prisma al cerrar la aplicación
-atexit.register(lambda: prisma.disconnect())
+@app.teardown_appcontext
+async def teardown_appcontext(exception):
+    if hasattr(g, 'prisma'):
+        try:
+            await g.prisma.disconnect()
+        except RuntimeError as e:
+            if "Event loop is closed" in str(e):
+                # This happens when the application is shutting down and the event loop is already closed.
+                # It's safe to ignore in this context.
+                pass
+            else:
+                # Re-raise other RuntimeErrors
+                raise
 
 # Decorador de autenticación simulado con JWT (para multi-tenancy real)
 # NOTA: En un entorno de producción, JWT_SECRET debe ser una variable de entorno segura
@@ -54,7 +57,7 @@ def require_jwt(f):
 
             # Recuperar el objeto Tenant de la base de datos
             # La conexión de Prisma ya está abierta globalmente
-            tenant = await prisma.tenant.find_unique(where={"id": tenant_id})
+            tenant = await g.prisma.tenant.find_unique(where={"id": tenant_id})
             if not tenant:
                 return jsonify({"success": False, "error": "Unauthorized: Invalid Tenant ID"}), 401
             
@@ -69,8 +72,56 @@ def require_jwt(f):
     return decorated_function
 
 @app.route('/')
-def index():
+async def index():
+    try:
+        # Obtener estadísticas
+        total_tenants = await g.prisma.tenant.count()
+        
+        # Crear el diccionario de estadísticas
+        stats = {
+            'total_tenants': total_tenants
+        }
+        
+        return render_template('dashboard.html', stats=stats)
+    except Exception as e:
+        print(f"Error al obtener estadísticas: {e}")
+        return render_template('dashboard.html', stats={'total_tenants': 0})
+
+@app.route('/dashboard')
+def dashboard():
+    # Fetch statistics for the dashboard
+    # Create a new Prisma client instance for this synchronous function
+    # and manage its lifecycle within the function.
+    # This is a workaround for the "Event loop is closed" error with Flask's dev server.
+    async def get_stats():
+        client = Prisma()
+        await client.connect()
+        try:
+            total_tenants = await client.tenant.count()
+            total_conversations = await client.whatsappmessage.count() # Assuming all messages are part of conversations
+        finally:
+            await client.disconnect()
+        
+        return {
+            "total_tenants": total_tenants,
+            "total_conversations": total_conversations,
+            "total_messages_sent": total_conversations, # For now, assuming 1 message = 1 conversation entry
+        }
+
+    stats = asyncio.run(get_stats())
+    return render_template('dashboard.html', stats=stats)
+
+@app.route('/conversations')
+def conversations():
+    return render_template('conversations.html')
+
+@app.route('/send_message')
+def send_message_page():
     return render_template('send_message.html')
+
+@app.route('/tenants')
+def tenants_page():
+    return render_template('tenants.html')
 
 # Endpoints CRUD para Tenants (Recomendación 1.2)
 @app.route('/tenants', methods=['POST'])
@@ -87,7 +138,7 @@ async def create_tenant():
         if not all([name, twilio_account_sid, twilio_auth_token]):
             return jsonify({"success": False, "error": "Missing required fields: name, twilio_account_sid, twilio_auth_token"}), 400
 
-        tenant = await prisma.tenant.create(
+        tenant = await g.prisma.tenant.create(
             data={
                 "name": name,
                 "twilioAccountSid": twilio_account_sid,
@@ -107,7 +158,7 @@ async def get_tenant(tenant_id):
         if g.tenant_id != tenant_id:
             return jsonify({"success": False, "error": "Unauthorized: Cannot access other tenant's data"}), 403
 
-        tenant = await prisma.tenant.find_unique(where={"id": tenant_id})
+        tenant = await g.prisma.tenant.find_unique(where={"id": tenant_id})
         if not tenant:
             return jsonify({"success": False, "error": "Tenant not found"}), 404
         return jsonify({"success": True, "tenant": tenant.dict()}), 200
@@ -180,7 +231,7 @@ async def send_whatsapp():
 
         # Registrar el mensaje (la conexión de Prisma ya está abierta)
         try:
-            await prisma.whatsappmessage.create(
+            await g.prisma.whatsappmessage.create(
                 data={
                     "tenantId": tenant.id, # Usar el ID del tenant autenticado
                     "messageSid": message_sid,
@@ -247,4 +298,4 @@ def twilio_webhook():
     return ("", 204) # Twilio espera una respuesta 200 OK o 204 No Content
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
