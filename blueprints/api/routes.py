@@ -67,6 +67,10 @@ def send_whatsapp_message():
 
         client = Client(account_sid, auth_token)
         
+        # Ensure 'to_number' has the 'whatsapp:' prefix for Twilio
+        if not to_number.startswith('whatsapp:'):
+            to_number = 'whatsapp:' + to_number
+
         message = client.messages.create(
             from_=twilio_whatsapp_number,
             to=to_number,

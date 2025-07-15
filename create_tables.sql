@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS messages (
     sender_type VARCHAR(10) NOT NULL CHECK (sender_type IN ('user', 'bot')),
     body TEXT,
     media_url VARCHAR(500),
+    to_number VARCHAR(50), -- Added to_number column
     timestamp TIMESTAMP DEFAULT NOW(),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
