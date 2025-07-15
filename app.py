@@ -166,7 +166,21 @@ async def get_tenant(tenant_id):
         print(f"Error al obtener tenant: {e}")
         return jsonify({"success": False, "error": f"Internal server error: {e}"}), 500
 
+# Ruta para mostrar la página de inquilinos
+@app.route('/inquilinos')
+def tenants():
+    return render_template('tenants.html')
+
 # Puedes añadir más endpoints PUT y DELETE para tenants
+
+@app.route('/api/tenants', methods=['GET'])
+async def get_tenants():
+    try:
+        tenants = await g.prisma.tenant.find_many()
+        return jsonify([tenant.dict() for tenant in tenants])
+    except Exception as e:
+        print(f"Error al obtener inquilinos: {e}")
+        return jsonify({"success": False, "error": f"Internal server error: {e}"}), 500
 
 @app.route('/send_whatsapp', methods=['POST'])
 @require_jwt # Proteger este endpoint con autenticación JWT/Tenant

@@ -34,42 +34,23 @@
         </h5>
     </div>
     <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="tenantsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Account SID</th>
+                        <th>Fecha Creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los datos se cargarán dinámicamente con JavaScript -->
+                </tbody>
+            </table>
+        </div>
         {% if tenants %}
-            <div class="table-responsive">
-                <table class="table table-hover" id="tenantsTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Número WhatsApp</th>
-                            <th>Fecha Creación</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for tenant in tenants %}
-                        <tr>
-                            <td>{{ tenant.id[:8] }}...</td>
-                            <td>{{ tenant.name }}</td>
-                            <td>{{ tenant.twilio_whatsapp_number }}</td>
-                            <td>{{ tenant.created_at.strftime('%d/%m/%Y %H:%M') if tenant.created_at else 'N/A' }}</td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <button class="btn btn-sm btn-outline-primary" 
-                                            onclick="viewTenant('{{ tenant.id }}')">
-                                        <i class="fas fa-eye"></i> Ver
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-warning" 
-                                            onclick="editTenant('{{ tenant.id }}')">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
         {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-users fa-3x text-muted mb-3"></i>
@@ -143,6 +124,55 @@
 
 {% block scripts %}
 <script>
+// Cargar inquilinos al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    loadTenants();
+});
+
+// Cargar inquilinos desde la API
+async function loadTenants() {
+    try {
+        const response = await fetch('/api/tenants');
+        if (response.ok) {
+            const tenants = await response.json();
+            displayTenants(tenants);
+        } else {
+            console.error('Error al cargar inquilinos');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Mostrar inquilinos en la tabla
+function displayTenants(tenants) {
+    const tbody = document.querySelector('#tenantsTable tbody');
+    tbody.innerHTML = '';
+    
+    if (tenants.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay inquilinos registrados.</td></tr>';
+        return;
+    }
+    
+    tenants.forEach(tenant => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${tenant.id}</td>
+            <td>${tenant.name}</td>
+            <td>${tenant.twilioAccountSid}</td>
+            <td>${new Date(tenant.createdAt).toLocaleString()}</td>
+            <td>
+                <button class="btn btn-sm btn-info" onclick="viewTenant('${tenant.id}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteTenant('${tenant.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
 // Filtro de búsqueda
 document.getElementById('searchInput').addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
