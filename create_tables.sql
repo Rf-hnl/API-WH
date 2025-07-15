@@ -1,41 +1,40 @@
--- Crear tablas para Bot WhatsApp Manager
--- Ejecutar en Supabase SQL Editor
+-- create_tables.sql
 
--- Tabla de inquilinos/tenants
+-- 1. Tenants
 CREATE TABLE IF NOT EXISTS tenants (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
-    twilio_whatsapp_number VARCHAR(20) UNIQUE NOT NULL,
-    api_key VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  twilio_whatsapp_number VARCHAR(20) UNIQUE NOT NULL,
+  api_key VARCHAR(255) UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Tabla de conversaciones
+-- 2. Conversations
 CREATE TABLE IF NOT EXISTS conversations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-    whatsapp_user_id VARCHAR(50) NOT NULL,
-    last_message_at TIMESTAMP DEFAULT NOW(),
-    status VARCHAR(50) DEFAULT 'open',
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE(tenant_id, whatsapp_user_id)
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  whatsapp_user_id TEXT NOT NULL,
+  last_message_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  status TEXT DEFAULT 'open',
+  UNIQUE(tenant_id, whatsapp_user_id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Tabla de mensajes
+-- 3. Messages
 CREATE TABLE IF NOT EXISTS messages (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-    message_sid VARCHAR(50) UNIQUE NOT NULL,
-    sender_type VARCHAR(10) NOT NULL CHECK (sender_type IN ('user', 'bot')),
-    body TEXT,
-    media_url VARCHAR(500),
-    to_number VARCHAR(50), -- Added to_number column
-    timestamp TIMESTAMP DEFAULT NOW(),
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  message_sid TEXT UNIQUE NOT NULL,
+  sender_type TEXT CHECK (sender_type IN ('user','bot')) NOT NULL,
+  body TEXT,
+  media_url TEXT,
+  to_number TEXT,
+  timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Índices para mejorar el rendimiento

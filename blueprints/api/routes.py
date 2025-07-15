@@ -80,12 +80,49 @@ def send_whatsapp_message():
         # Guardar el mensaje en la base de datos
         conn = get_db_connection()
         cur = conn.cursor()
+
+        # Find or create conversation
+        whatsapp_user_id_clean = to_number.replace('whatsapp:', '')
+        
         cur.execute(
             """
-            INSERT INTO messages (tenant_id, message_sid, sender_type, body, to_number)
-            VALUES (%s, %s, 'bot', %s, %s)
+            SELECT id FROM conversations
+            WHERE tenant_id = %s AND whatsapp_user_id = %s
             """,
-            (current_tenant_id, message.sid, message_body, to_number)
+            (current_tenant_id, whatsapp_user_id_clean)
+        )
+        conversation = cur.fetchone()
+
+        conversation_id = None
+        if conversation:
+            conversation_id = conversation['id']
+            # Update last_message_at for existing conversation
+            cur.execute(
+                """
+                UPDATE conversations
+                SET last_message_at = NOW(), updated_at = NOW()
+                WHERE id = %s
+                """,
+                (conversation_id,)
+            )
+        else:
+            # Create new conversation
+            conversation_id = str(uuid.uuid4())
+            cur.execute(
+                """
+                INSERT INTO conversations (id, tenant_id, whatsapp_user_id, last_message_at, status)
+                VALUES (%s, %s, %s, NOW(), 'open')
+                """,
+                (conversation_id, current_tenant_id, whatsapp_user_id_clean)
+            )
+        
+        # Insert the message
+        cur.execute(
+            """
+            INSERT INTO messages (id, conversation_id, tenant_id, message_sid, sender_type, body, timestamp, to_number)
+            VALUES (%s, %s, %s, %s, 'bot', %s, NOW(), %s)
+            """,
+            (str(uuid.uuid4()), conversation_id, current_tenant_id, message.sid, message_body, to_number)
         )
         conn.commit()
         cur.close()
@@ -95,6 +132,42 @@ def send_whatsapp_message():
 
     except TwilioRestException as e:
         return jsonify({"error": f"Error de Twilio: {e.msg}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Error interno del servidor: {str(e)}"}), 500
+
+@api_bp.route('/create_tenant', methods=['POST'])
+def create_tenant():
+    data = request.get_json()
+    name = data.get('name')
+    username = data.get('username')
+    password = data.get('password')
+    twilio_whatsapp_number = data.get('twilio_whatsapp_number')
+    api_key = data.get('api_key')
+
+    if not all([name, username, password, twilio_whatsapp_number, api_key]):
+        return jsonify({"error": "Faltan campos obligatorios"}), 400
+
+    hashed_password = generate_password_hash(password)
+
+    conn = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT INTO tenants (id, name, username, password, twilio_whatsapp_number, api_key)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (str(uuid.uuid4()), name, username, hashed_password, twilio_whatsapp_number, api_key)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify({"success": True, "message": "Tenant creado exitosamente"}), 201
+    except psycopg2.IntegrityError as e:
+        if "duplicate key value violates unique constraint" in str(e):
+            return jsonify({"error": "El nombre de usuario o número de WhatsApp ya existe."}), 409
+        return jsonify({"error": f"Error de base de datos: {str(e)}"}), 500
     except Exception as e:
         return jsonify({"error": f"Error interno del servidor: {str(e)}"}), 500
 

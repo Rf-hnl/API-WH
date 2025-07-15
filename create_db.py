@@ -53,6 +53,7 @@ def create_database_tables():
             username VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
             twilio_whatsapp_number VARCHAR(30) UNIQUE NOT NULL,
+            api_key VARCHAR(255) UNIQUE, -- Added api_key column (made nullable)
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW()
         );
@@ -77,6 +78,7 @@ def create_database_tables():
             message_sid VARCHAR(50) UNIQUE NOT NULL,
             sender_type VARCHAR(10) NOT NULL CHECK (sender_type IN ('user', 'bot')),
             body TEXT,
+            to_number VARCHAR(50) NOT NULL,     -- <–– nueva columna para el número destino (aumentado a 50)
             media_url VARCHAR(500),
             timestamp TIMESTAMP DEFAULT NOW(),
             created_at TIMESTAMP DEFAULT NOW(),
@@ -119,17 +121,19 @@ def create_database_tables():
             EXECUTE FUNCTION update_updated_at_column();
         """)
         
-        # Insertar inquilino de prueba
-        test_tenant_uuid = str(uuid.uuid4())
+        # Insertar inquilino de prueba si no existe
         cursor.execute("""
-            INSERT INTO tenants (id, name, username, password, twilio_whatsapp_number)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO tenants (id, name, username, password, twilio_whatsapp_number, api_key)
+            SELECT %s, %s, %s, %s, %s, %s
+            WHERE NOT EXISTS (SELECT 1 FROM tenants WHERE twilio_whatsapp_number = %s);
         """, (
-            test_tenant_uuid,
-            "Empresa Demo",
-            "demo",
-            generate_password_hash("password"), # In a real application, this should be a hashed password
-            "whatsapp:+14155238886"
+            str(uuid.uuid4()),
+            "Tenant Inicial",
+            "admin", # Default username
+            generate_password_hash("password"), # Default password
+            os.getenv('TWILIO_PHONE_NUMBER', '+5070000000'), # Use TWILIO_PHONE_NUMBER from .env or default
+            'CAMBIAR_POR_TU_API_KEY', # Placeholder for API Key
+            os.getenv('TWILIO_PHONE_NUMBER', '+5070000000')
         ))
         
         conn.commit()
