@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Create Tenant - Bot WhatsApp Manager{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Create New Tenant</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('create_tenant') }}">
+        <div class="mb-3">
+            <label for="name" class="form-label">Tenant Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+            <div class="form-text">Enter a descriptive name for the tenant</div>
+        </div>
+        <div class="mb-3">
+            <label for="twilio_whatsapp_number" class="form-label">Twilio WhatsApp Number</label>
+            <input type="text" class="form-control" id="twilio_whatsapp_number" name="twilio_whatsapp_number" required>
+            <div class="form-text">e.g., +12345678900 (include country code)</div>
+        </div>
+        <div class="mb-3">
+            <label for="api_key" class="form-label">API Key</label>
+            <input type="text" class="form-control" id="api_key" name="api_key" required>
+            <div class="form-text">Enter a unique API key for this tenant</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Tenant</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

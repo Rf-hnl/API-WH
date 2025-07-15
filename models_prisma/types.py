@@ -1151,6 +1151,8 @@ class TenantOptionalCreateInput(TypedDict, total=False):
 class TenantCreateInput(TenantOptionalCreateInput):
     """Required arguments to the Tenant create method"""
     name: _str
+    username: _str
+    password: _str
     twilioAccountSid: _str
     twilioAuthToken: _str
 
@@ -1166,6 +1168,8 @@ class TenantOptionalCreateWithoutRelationsInput(TypedDict, total=False):
 class TenantCreateWithoutRelationsInput(TenantOptionalCreateWithoutRelationsInput):
     """Required arguments to the Tenant create method, without relations"""
     name: _str
+    username: _str
+    password: _str
     twilioAccountSid: _str
     twilioAuthToken: _str
 
@@ -1200,9 +1204,18 @@ _TenantWhereUnique_name_Input = TypedDict(
     total=True
 )
 
+_TenantWhereUnique_username_Input = TypedDict(
+    '_TenantWhereUnique_username_Input',
+    {
+        'username': '_str',
+    },
+    total=True
+)
+
 TenantWhereUniqueInput = Union[
     '_TenantWhereUnique_id_Input',
     '_TenantWhereUnique_name_Input',
+    '_TenantWhereUnique_username_Input',
 ]
 
 
@@ -1210,6 +1223,8 @@ class TenantUpdateInput(TypedDict, total=False):
     """Optional arguments for updating a record"""
     id: _str
     name: _str
+    username: _str
+    password: _str
     twilioAccountSid: _str
     twilioAuthToken: _str
     whatsappMessages: 'WhatsappMessageUpdateManyWithoutRelationsInput'
@@ -1219,6 +1234,8 @@ class TenantUpdateManyMutationInput(TypedDict, total=False):
     """Arguments for updating many records"""
     id: _str
     name: _str
+    username: _str
+    password: _str
     twilioAccountSid: _str
     twilioAuthToken: _str
 
@@ -1271,6 +1288,22 @@ _Tenant_name_OrderByInput = TypedDict(
     total=True
 )
 
+_Tenant_username_OrderByInput = TypedDict(
+    '_Tenant_username_OrderByInput',
+    {
+        'username': 'SortOrder',
+    },
+    total=True
+)
+
+_Tenant_password_OrderByInput = TypedDict(
+    '_Tenant_password_OrderByInput',
+    {
+        'password': 'SortOrder',
+    },
+    total=True
+)
+
 _Tenant_twilioAccountSid_OrderByInput = TypedDict(
     '_Tenant_twilioAccountSid_OrderByInput',
     {
@@ -1308,6 +1341,8 @@ _Tenant_RelevanceOrderByInput = TypedDict(
 TenantOrderByInput = Union[
     '_Tenant_id_OrderByInput',
     '_Tenant_name_OrderByInput',
+    '_Tenant_username_OrderByInput',
+    '_Tenant_password_OrderByInput',
     '_Tenant_twilioAccountSid_OrderByInput',
     '_Tenant_twilioAuthToken_OrderByInput',
     '_Tenant_RelevanceOrderByInput',
@@ -1566,6 +1601,8 @@ class TenantWhereInput(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    username: Union[_str, 'types.StringFilter']
+    password: Union[_str, 'types.StringFilter']
     twilioAccountSid: Union[_str, 'types.StringFilter']
     twilioAuthToken: Union[_str, 'types.StringFilter']
     whatsappMessages: 'WhatsappMessageListRelationFilter'
@@ -1581,6 +1618,8 @@ class TenantWhereInputRecursive1(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    username: Union[_str, 'types.StringFilter']
+    password: Union[_str, 'types.StringFilter']
     twilioAccountSid: Union[_str, 'types.StringFilter']
     twilioAuthToken: Union[_str, 'types.StringFilter']
     whatsappMessages: 'WhatsappMessageListRelationFilter'
@@ -1596,6 +1635,8 @@ class TenantWhereInputRecursive2(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    username: Union[_str, 'types.StringFilter']
+    password: Union[_str, 'types.StringFilter']
     twilioAccountSid: Union[_str, 'types.StringFilter']
     twilioAuthToken: Union[_str, 'types.StringFilter']
     whatsappMessages: 'WhatsappMessageListRelationFilter'
@@ -1611,6 +1652,8 @@ class TenantWhereInputRecursive3(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    username: Union[_str, 'types.StringFilter']
+    password: Union[_str, 'types.StringFilter']
     twilioAccountSid: Union[_str, 'types.StringFilter']
     twilioAuthToken: Union[_str, 'types.StringFilter']
     whatsappMessages: 'WhatsappMessageListRelationFilter'
@@ -1626,6 +1669,8 @@ class TenantWhereInputRecursive4(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    username: Union[_str, 'types.StringFilter']
+    password: Union[_str, 'types.StringFilter']
     twilioAccountSid: Union[_str, 'types.StringFilter']
     twilioAuthToken: Union[_str, 'types.StringFilter']
     whatsappMessages: 'WhatsappMessageListRelationFilter'
@@ -1641,6 +1686,8 @@ class TenantScalarWhereWithAggregatesInput(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    username: Union[_str, 'types.StringWithAggregatesFilter']
+    password: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAccountSid: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAuthToken: Union[_str, 'types.StringWithAggregatesFilter']
 
@@ -1653,6 +1700,8 @@ class TenantScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    username: Union[_str, 'types.StringWithAggregatesFilter']
+    password: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAccountSid: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAuthToken: Union[_str, 'types.StringWithAggregatesFilter']
 
@@ -1665,6 +1714,8 @@ class TenantScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    username: Union[_str, 'types.StringWithAggregatesFilter']
+    password: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAccountSid: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAuthToken: Union[_str, 'types.StringWithAggregatesFilter']
 
@@ -1677,6 +1728,8 @@ class TenantScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    username: Union[_str, 'types.StringWithAggregatesFilter']
+    password: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAccountSid: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAuthToken: Union[_str, 'types.StringWithAggregatesFilter']
 
@@ -1689,6 +1742,8 @@ class TenantScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
     """Tenant arguments for searching"""
     id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    username: Union[_str, 'types.StringWithAggregatesFilter']
+    password: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAccountSid: Union[_str, 'types.StringWithAggregatesFilter']
     twilioAuthToken: Union[_str, 'types.StringWithAggregatesFilter']
 
@@ -1697,6 +1752,8 @@ class TenantScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
 class TenantGroupByOutput(TypedDict, total=False):
     id: _str
     name: _str
+    username: _str
+    password: _str
     twilioAccountSid: _str
     twilioAuthToken: _str
     _sum: 'TenantSumAggregateOutput'
@@ -1718,6 +1775,8 @@ class TenantScalarAggregateOutput(TypedDict, total=False):
     """Tenant output including scalar fields"""
     id: _str
     name: _str
+    username: _str
+    password: _str
     twilioAccountSid: _str
     twilioAuthToken: _str
 
@@ -1730,6 +1789,8 @@ class TenantMaxAggregateInput(TypedDict, total=False):
     """Tenant input for aggregating by max"""
     id: bool
     name: bool
+    username: bool
+    password: bool
     twilioAccountSid: bool
     twilioAuthToken: bool
 
@@ -1738,6 +1799,8 @@ class TenantMinAggregateInput(TypedDict, total=False):
     """Tenant input for aggregating by min"""
     id: bool
     name: bool
+    username: bool
+    password: bool
     twilioAccountSid: bool
     twilioAuthToken: bool
 
@@ -1755,6 +1818,8 @@ TenantCountAggregateInput = TypedDict(
     {
         'id': bool,
         'name': bool,
+        'username': bool,
+        'password': bool,
         'twilioAccountSid': bool,
         'twilioAuthToken': bool,
         '_all': bool,
@@ -1767,6 +1832,8 @@ TenantCountAggregateOutput = TypedDict(
     {
         'id': int,
         'name': int,
+        'username': int,
+        'password': int,
         'twilioAccountSid': int,
         'twilioAuthToken': int,
         '_all': int,
@@ -1778,6 +1845,8 @@ TenantCountAggregateOutput = TypedDict(
 TenantKeys = Literal[
     'id',
     'name',
+    'username',
+    'password',
     'twilioAccountSid',
     'twilioAuthToken',
     'whatsappMessages',
@@ -1785,6 +1854,8 @@ TenantKeys = Literal[
 TenantScalarFieldKeys = Literal[
     'id',
     'name',
+    'username',
+    'password',
     'twilioAccountSid',
     'twilioAuthToken',
 ]

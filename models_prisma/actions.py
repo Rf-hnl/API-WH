@@ -176,8 +176,10 @@ class TenantActions(Generic[_PrismaModelT]):
             data={
                 # data to create a Tenant record
                 'name': 'ggciceaie',
-                'twilioAccountSid': 'bbehjachib',
-                'twilioAuthToken': 'cadfabfehe',
+                'username': 'bbehjachib',
+                'password': 'cadfabfehe',
+                'twilioAccountSid': 'dgiiaaijj',
+                'twilioAuthToken': 'bfaiacjjfc',
             },
         )
         ```
@@ -232,15 +234,19 @@ class TenantActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a Tenant record
-                    'name': 'dgiiaaijj',
-                    'twilioAccountSid': 'bfaiacjjfc',
-                    'twilioAuthToken': 'eigcfgbif',
+                    'name': 'eigcfgbif',
+                    'username': 'bagcfbhiig',
+                    'password': 'cghideieh',
+                    'twilioAccountSid': 'biabhbdai',
+                    'twilioAuthToken': 'idghgaicb',
                 },
                 {
                     # data to create a Tenant record
-                    'name': 'bagcfbhiig',
-                    'twilioAccountSid': 'cghideieh',
-                    'twilioAuthToken': 'biabhbdai',
+                    'name': 'fjfddhigg',
+                    'username': 'hjaecfifb',
+                    'password': 'cbbbjbfcii',
+                    'twilioAccountSid': 'bbejhfidcb',
+                    'twilioAuthToken': 'bgeecijdgg',
                 },
             ],
             skip_duplicates=True,
@@ -294,7 +300,7 @@ class TenantActions(Generic[_PrismaModelT]):
         ```py
         tenant = await Tenant.prisma().delete(
             where={
-                'id': 'idghgaicb',
+                'id': 'bdiicjafbj',
             },
         )
         ```
@@ -346,7 +352,7 @@ class TenantActions(Generic[_PrismaModelT]):
         ```py
         tenant = await Tenant.prisma().find_unique(
             where={
-                'id': 'fjfddhigg',
+                'id': 'bgehebiafc',
             },
         )
         ```
@@ -397,7 +403,7 @@ class TenantActions(Generic[_PrismaModelT]):
         ```py
         tenant = await Tenant.prisma().find_unique_or_raise(
             where={
-                'id': 'hjaecfifb',
+                'id': 'bghffegacj',
             },
         )
         ```
@@ -459,11 +465,11 @@ class TenantActions(Generic[_PrismaModelT]):
         # find the first 10 Tenant records
         tenants = await Tenant.prisma().find_many(take=10)
 
-        # find the first 5 Tenant records ordered by the twilioAccountSid field
+        # find the first 5 Tenant records ordered by the username field
         tenants = await Tenant.prisma().find_many(
             take=5,
             order={
-                'twilioAccountSid': 'desc',
+                'username': 'desc',
             },
         )
         ```
@@ -524,11 +530,11 @@ class TenantActions(Generic[_PrismaModelT]):
         Example
         -------
         ```py
-        # find the second Tenant record ordered by the twilioAuthToken field
+        # find the second Tenant record ordered by the password field
         tenant = await Tenant.prisma().find_first(
             skip=1,
             order={
-                'twilioAuthToken': 'desc',
+                'password': 'desc',
             },
         )
         ```
@@ -592,11 +598,11 @@ class TenantActions(Generic[_PrismaModelT]):
         Example
         -------
         ```py
-        # find the second Tenant record ordered by the id field
+        # find the second Tenant record ordered by the twilioAccountSid field
         tenant = await Tenant.prisma().find_first_or_raise(
             skip=1,
             order={
-                'id': 'desc',
+                'twilioAccountSid': 'desc',
             },
         )
         ```
@@ -649,7 +655,7 @@ class TenantActions(Generic[_PrismaModelT]):
         ```py
         tenant = await Tenant.prisma().update(
             where={
-                'id': 'cbbbjbfcii',
+                'id': 'bhghchehcc',
             },
             data={
                 # data to update the Tenant record to
@@ -706,19 +712,23 @@ class TenantActions(Generic[_PrismaModelT]):
         ```py
         tenant = await Tenant.prisma().upsert(
             where={
-                'id': 'bbejhfidcb',
+                'id': 'dcgchcbbf',
             },
             data={
                 'create': {
-                    'id': 'bbejhfidcb',
-                    'name': 'bagcfbhiig',
-                    'twilioAccountSid': 'cghideieh',
-                    'twilioAuthToken': 'biabhbdai',
+                    'id': 'dcgchcbbf',
+                    'name': 'fjfddhigg',
+                    'username': 'hjaecfifb',
+                    'password': 'cbbbjbfcii',
+                    'twilioAccountSid': 'bbejhfidcb',
+                    'twilioAuthToken': 'bgeecijdgg',
                 },
                 'update': {
-                    'name': 'bagcfbhiig',
-                    'twilioAccountSid': 'cghideieh',
-                    'twilioAuthToken': 'biabhbdai',
+                    'name': 'fjfddhigg',
+                    'username': 'hjaecfifb',
+                    'password': 'cbbbjbfcii',
+                    'twilioAccountSid': 'bbejhfidcb',
+                    'twilioAuthToken': 'bgeecijdgg',
                 },
             },
         )
@@ -766,7 +776,7 @@ class TenantActions(Generic[_PrismaModelT]):
         # update all Tenant records
         total = await Tenant.prisma().update_many(
             data={
-                'name': 'bgeecijdgg'
+                'twilioAuthToken': 'bdedcabahc'
             },
             where={}
         )
@@ -830,7 +840,7 @@ class TenantActions(Generic[_PrismaModelT]):
         results = await Tenant.prisma().count(
             select={
                 '_all': True,
-                'twilioAccountSid': True,
+                'id': True,
             },
         )
         ```
@@ -897,7 +907,7 @@ class TenantActions(Generic[_PrismaModelT]):
         results = await Tenant.prisma().count(
             select={
                 '_all': True,
-                'twilioAuthToken': True,
+                'name': True,
             },
         )
         ```
@@ -1037,10 +1047,10 @@ class TenantActions(Generic[_PrismaModelT]):
         Example
         -------
         ```py
-        # group Tenant records by id values
+        # group Tenant records by username values
         # and count how many records are in each group
         results = await Tenant.prisma().group_by(
-            ['id'],
+            ['username'],
             count=True,
         )
         ```
@@ -1129,7 +1139,7 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         ```py
         users = await WhatsappMessage.prisma().query_raw(
             'SELECT * FROM WhatsappMessage WHERE id = $1',
-            'bdiicjafbj',
+            'ghfhiafcb',
         )
         ```
         """
@@ -1169,7 +1179,7 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         ```py
         user = await WhatsappMessage.prisma().query_first(
             'SELECT * FROM WhatsappMessage WHERE tenantId = $1',
-            'bgehebiafc',
+            'heejgedji',
         )
         ```
         """
@@ -1208,11 +1218,11 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         whatsappmessage = await WhatsappMessage.prisma().create(
             data={
                 # data to create a WhatsappMessage record
-                'tenantId': 'bghffegacj',
-                'fromNumber': 'bhghchehcc',
-                'toNumber': 'dcgchcbbf',
-                'contentSid': 'bdedcabahc',
-                'status': 'ghfhiafcb',
+                'tenantId': 'bjgjgibgbf',
+                'fromNumber': 'bbbgbhfjge',
+                'toNumber': 'igbehcbab',
+                'contentSid': 'bdadaadhag',
+                'status': 'bgiggdidbf',
             },
         )
         ```
@@ -1267,19 +1277,19 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a WhatsappMessage record
-                    'tenantId': 'heejgedji',
-                    'fromNumber': 'bjgjgibgbf',
-                    'toNumber': 'bbbgbhfjge',
-                    'contentSid': 'igbehcbab',
-                    'status': 'bdadaadhag',
+                    'tenantId': 'caaaedabfc',
+                    'fromNumber': 'bigibebcib',
+                    'toNumber': 'bigaiehgcc',
+                    'contentSid': 'beeifcbebf',
+                    'status': 'bgcigfahea',
                 },
                 {
                     # data to create a WhatsappMessage record
-                    'tenantId': 'bgiggdidbf',
-                    'fromNumber': 'caaaedabfc',
-                    'toNumber': 'bigibebcib',
-                    'contentSid': 'bigaiehgcc',
-                    'status': 'beeifcbebf',
+                    'tenantId': 'bcejgaggif',
+                    'fromNumber': 'idfjadbcc',
+                    'toNumber': 'hgdhbjhhj',
+                    'contentSid': 'ecjjjfbae',
+                    'status': 'bhhfibbigf',
                 },
             ],
             skip_duplicates=True,
@@ -1333,7 +1343,7 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         ```py
         whatsappmessage = await WhatsappMessage.prisma().delete(
             where={
-                'id': 'bgcigfahea',
+                'id': 'ijdbeffgg',
             },
         )
         ```
@@ -1385,7 +1395,7 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         ```py
         whatsappmessage = await WhatsappMessage.prisma().find_unique(
             where={
-                'id': 'bcejgaggif',
+                'id': 'jjfeafhfj',
             },
         )
         ```
@@ -1436,7 +1446,7 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         ```py
         whatsappmessage = await WhatsappMessage.prisma().find_unique_or_raise(
             where={
-                'id': 'idfjadbcc',
+                'id': 'cbachdgfce',
             },
         )
         ```
@@ -1688,7 +1698,7 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         ```py
         whatsappmessage = await WhatsappMessage.prisma().update(
             where={
-                'id': 'hgdhbjhhj',
+                'id': 'chbfcacbd',
             },
             data={
                 # data to update the WhatsappMessage record to
@@ -1745,23 +1755,23 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         ```py
         whatsappmessage = await WhatsappMessage.prisma().upsert(
             where={
-                'id': 'ecjjjfbae',
+                'id': 'efggddide',
             },
             data={
                 'create': {
-                    'id': 'ecjjjfbae',
-                    'tenantId': 'bgiggdidbf',
-                    'fromNumber': 'caaaedabfc',
-                    'toNumber': 'bigibebcib',
-                    'contentSid': 'bigaiehgcc',
-                    'status': 'beeifcbebf',
+                    'id': 'efggddide',
+                    'tenantId': 'bcejgaggif',
+                    'fromNumber': 'idfjadbcc',
+                    'toNumber': 'hgdhbjhhj',
+                    'contentSid': 'ecjjjfbae',
+                    'status': 'bhhfibbigf',
                 },
                 'update': {
-                    'tenantId': 'bgiggdidbf',
-                    'fromNumber': 'caaaedabfc',
-                    'toNumber': 'bigibebcib',
-                    'contentSid': 'bigaiehgcc',
-                    'status': 'beeifcbebf',
+                    'tenantId': 'bcejgaggif',
+                    'fromNumber': 'idfjadbcc',
+                    'toNumber': 'hgdhbjhhj',
+                    'contentSid': 'ecjjjfbae',
+                    'status': 'bhhfibbigf',
                 },
             },
         )
@@ -1809,7 +1819,7 @@ class WhatsappMessageActions(Generic[_PrismaModelT]):
         # update all WhatsappMessage records
         total = await WhatsappMessage.prisma().update_many(
             data={
-                'contentSid': 'bhhfibbigf'
+                'contentSid': 'caficfigfb'
             },
             where={}
         )

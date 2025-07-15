@@ -61,6 +61,8 @@ class Tenant(bases.BaseTenant):
 
     id: _str
     name: _str
+    username: _str
+    password: _str
     twilioAccountSid: _str
     twilioAuthToken: _str
     whatsappMessages: Optional[List['models.WhatsappMessage']] = None
@@ -343,6 +345,22 @@ _Tenant_fields: Dict['types.TenantKeys', PartialModelField] = OrderedDict(
         }),
         ('name', {
             'name': 'name',
+            'is_list': False,
+            'optional': False,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('username', {
+            'name': 'username',
+            'is_list': False,
+            'optional': False,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('password', {
+            'name': 'password',
             'is_list': False,
             'optional': False,
             'type': '_str',

@@ -49,24 +49,14 @@
         <h1>Enviar Mensaje de WhatsApp</h1>
         <form id="whatsappForm">
             <div class="form-group">
-                <label for="twilio_number">Twilio WhatsApp Number</label>
-                <input type="tel" id="twilio_number" name="twilio_number" placeholder="whatsapp:+14155238886" required>
-                <div class="help-text">El número de WhatsApp de Twilio (ej. whatsapp:+14155238886).</div>
-            </div>
-            <div class="form-group">
-                <label for="content_sid">Content SID (Plantilla de WhatsApp)</label>
-                <input type="text" id="content_sid" name="content_sid" required>
-                <div class="help-text">El Content SID de tu plantilla de WhatsApp aprobada.</div>
-            </div>
-            <div class="form-group">
-                <label for="content_variables">Content Variables (JSON)</label>
-                <input type="text" id="content_variables" name="content_variables" placeholder='{"1":"12/1","2":"3pm"}'>
-                <div class="help-text">Variables para la plantilla en formato JSON (ej. {"1":"valor1","2":"valor2"}).</div>
+                <label for="message_body">Mensaje</label>
+                <input type="text" id="message_body" name="message_body" placeholder="Escribe tu mensaje aquí..." required>
+                <div class="help-text">El contenido del mensaje a enviar.</div>
             </div>
             <div class="form-group">
                 <label for="to_number">To (Número de Destino)</label>
-                <input type="tel" id="to_number" name="to_number" placeholder="whatsapp:+50763116918" required>
-                <div class="help-text">El número de WhatsApp del destinatario (ej. whatsapp:+50763116918).</div>
+                <input type="tel" id="to_number" name="to_number" placeholder="+50763116918" required>
+                <div class="help-text">El número de WhatsApp del destinatario (ej. +50763116918).</div>
             </div>
             <button type="submit">Enviar Mensaje</button>
             <div id="notification" class="notification"></div>
@@ -78,8 +68,14 @@
             event.preventDefault();
 
             const form = event.target;
-            const formData = new FormData(form);
+            const messageBody = document.getElementById('message_body').value;
+            let toNumber = document.getElementById('to_number').value; // Use let to allow reassignment
             const notificationDiv = document.getElementById('notification');
+
+            // Remove 'whatsapp:' prefix if present
+            if (toNumber.startsWith('whatsapp:')) {
+                toNumber = toNumber.substring('whatsapp:'.length);
+            }
 
             // Clear previous notifications
             notificationDiv.style.display = 'none';
@@ -87,13 +83,16 @@
             notificationDiv.textContent = '';
 
             try {
-                const response = await fetch('/send_whatsapp', {
+                const response = await fetch('/api/send_whatsapp', {
                     method: 'POST',
-                body: JSON.stringify(Object.fromEntries(formData)),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Tenant-ID': 'tenant_ejemplo_123' // ¡Este ID debe venir de la autenticación real del usuario!
-                }
+                    body: JSON.stringify({
+                        message_body: messageBody,
+                        to_number: toNumber
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Tenant-ID': 'tenant_ejemplo_123' // ¡Este ID debe venir de la autenticación real del usuario!
+                    }
                 });
 
                 const result = await response.json();

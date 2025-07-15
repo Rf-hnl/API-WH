@@ -11,7 +11,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+            <a class="navbar-brand" href="{{ url_for('frontend_bp.dashboard') }}">
                 <i class="fab fa-whatsapp"></i> Bot WhatsApp Manager
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -20,22 +20,22 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                        <a class="nav-link" href="{{ url_for('frontend_bp.dashboard') }}">
                             <i class="fas fa-home"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('conversations') }}">
+                        <a class="nav-link" href="{{ url_for('frontend_bp.conversations') }}">
                             <i class="fas fa-comments"></i> Conversaciones
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('send_message_page') }}">
+                        <a class="nav-link" href="{{ url_for('frontend_bp.send_message_page') }}">
                             <i class="fas fa-paper-plane"></i> Enviar Mensaje
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('tenants_page') }}">
+                        <a class="nav-link" href="{{ url_for('frontend_bp.tenants_page') }}">
                             <i class="fas fa-users"></i> Inquilinos
                         </a>
                     </li>
