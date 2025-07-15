@@ -12,4 +12,5 @@ prisma
 Flask-JWT-Extended
 Flask-Limiter
 Flask-CORS
+flask-restx
 gunicorn

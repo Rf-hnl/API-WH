@@ -50,10 +50,12 @@ def create_database_tables():
         CREATE TABLE IF NOT EXISTS tenants (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             name VARCHAR(255) NOT NULL,
-            username VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
+            username VARCHAR(255) UNIQUE,
+            password VARCHAR(255),
+            twilio_account_sid VARCHAR(255) NOT NULL,
+            twilio_auth_token VARCHAR(255) NOT NULL,
             twilio_whatsapp_number VARCHAR(30) UNIQUE NOT NULL,
-            api_key VARCHAR(255) UNIQUE, -- Added api_key column (made nullable)
+            api_key VARCHAR(255) UNIQUE,
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW()
         );
@@ -122,18 +124,21 @@ def create_database_tables():
         """)
         
         # Insertar inquilino de prueba si no existe
+        initial_tenant_id = str(uuid.uuid4())
         cursor.execute("""
-            INSERT INTO tenants (id, name, username, password, twilio_whatsapp_number, api_key)
-            SELECT %s, %s, %s, %s, %s, %s
+            INSERT INTO tenants (id, name, username, password, twilio_account_sid, twilio_auth_token, twilio_whatsapp_number, api_key)
+            SELECT %s, %s, %s, %s, %s, %s, %s, %s
             WHERE NOT EXISTS (SELECT 1 FROM tenants WHERE twilio_whatsapp_number = %s);
         """, (
-            str(uuid.uuid4()),
+            initial_tenant_id,
             "Tenant Inicial",
-            "admin", # Default username
-            generate_password_hash("password"), # Default password
-            os.getenv('TWILIO_PHONE_NUMBER', '+5070000000'), # Use TWILIO_PHONE_NUMBER from .env or default
-            'CAMBIAR_POR_TU_API_KEY', # Placeholder for API Key
-            os.getenv('TWILIO_PHONE_NUMBER', '+5070000000')
+            "admin",
+            generate_password_hash("password"),
+            os.getenv('TWILIO_ACCOUNT_SID', 'AC_DEFAULT'),
+            os.getenv('TWILIO_AUTH_TOKEN', 'TOKEN_DEFAULT'),
+            os.getenv('TWILIO_PHONE_NUMBER', 'whatsapp:+17869461491'),
+            initial_tenant_id,
+            os.getenv('TWILIO_PHONE_NUMBER', 'whatsapp:+17869461491')
         ))
         
         conn.commit()
